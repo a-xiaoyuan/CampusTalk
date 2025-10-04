@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: my-project-backend
+  security:
+    jwt:
+      key: xaioyuyuhahaha
+      expire: 7
+  datasource:
+    username: root
+    password: "061219"
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+server:
+  port: 8082
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
