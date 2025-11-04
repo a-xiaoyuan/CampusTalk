@@ -22,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -59,26 +60,34 @@ public class SecurityConfiguration {
 
     private void onAccessDeny(HttpServletRequest request,
                               HttpServletResponse response,
-                              AccessDeniedException e)throws IOException, ServletException {
+                              AccessDeniedException e)throws IOException {
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().write(RestBean.forbidden(e.getMessage()).asJsonString());
     }
 
     private void onUnauthorized(HttpServletRequest request,
                                 HttpServletResponse response,
-                                AuthenticationException exception)throws IOException, ServletException {
+                                AuthenticationException exception)throws IOException{
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().write(RestBean.unauthorized(exception.getMessage()).asJsonString());
     }
 
     private void onLogoutSuccess(HttpServletRequest request,
                                  HttpServletResponse response,
-                                 Authentication authentication)throws IOException, ServletException {
+                                 Authentication authentication)throws IOException{
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter writer=response.getWriter();
+        String authorization=request.getHeader("Authorization");
+        if(utils.invalidateJwt(authorization)){
+            writer.write(RestBean.success().asJsonString());
+        }else{
+            writer.write(RestBean.failure(400,"退出登录失败").asJsonString());
+        }
     }
 
     private void onAuthenticationSuccess(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         Authentication authentication)throws IOException, ServletException {
+                                         Authentication authentication)throws IOException{
         response.setContentType("application/json;charset=utf-8");
         User user=(User) authentication.getPrincipal();
         String token=utils.createJwt(user,1,"小明");
