@@ -6,7 +6,7 @@
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex">
     <div style="flex: 1;background-color: black">
       <el-image style="width: 100%;height: 100%" fit="cover"
-          src="https://th.bing.com/th/id/OIP.L68XlkffJLxCNGDaGCC_rgHaE8?w=150&h=108&c=7&bgcl=f75af5&r=0&o=6&dpr=1.5&pid=13.1"/>
+          src="https://th.bing.com/th/id/OIP.LltGYcnaHVAihJNBIB39egAAAA?w=150&h=108&c=7&bgcl=b3303c&r=0&o=6&dpr=1.5&pid=13.1"/>
     </div>
     <div class="welcome-title">
       <div style="font-size: 30px;font-weight: bold">欢迎来到我们的学习平台</div>
