@@ -13,7 +13,7 @@
       <div style="margin-top: 10px">在这里可以学习各种技术</div>
     </div>
     <div class="right-card">
-
+      <router-view/>
     </div>
   </div>
 </template>
