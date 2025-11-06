@@ -10,7 +10,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,7 +33,7 @@ public class SecurityConfiguration {
     JwtUtils utils;
     @Resource
     JwtAuthorizeFilter jwtAuthorizeFilter;
-    @Autowired
+    @Resource
     AccountService service;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity  http)throws  Exception{
@@ -98,16 +97,16 @@ public class SecurityConfiguration {
         Account account=service.findAccountByUsername(user.getUsername());
         String token=utils.createJwt(user,account.getId(),account.getUsername());
         AuthorizeVO vo=new AuthorizeVO();
-        vo.setExpire(utils.expireTime());
+        vo.setUsername(account.getUsername());
         vo.setRole(account.getRole());
         vo.setToken(token);
-        vo.setUsername(account.getUsername());
+        vo.setExpire(utils.expireTime());
         response.getWriter().write(RestBean.success(vo).asJsonString());
     }
 
     private void onAuthenticationFailure(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         AuthenticationException exception)throws IOException, ServletException {
+                                         AuthenticationException exception)throws IOException {
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().write(RestBean.failure(401,exception.getMessage()).asJsonString());
     }

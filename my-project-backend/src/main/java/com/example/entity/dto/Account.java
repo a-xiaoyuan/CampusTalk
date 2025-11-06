@@ -17,7 +17,7 @@ public class Account {
     Integer id;
     String username;
     String password;
-    String role;
     String email;
+    String role;
     Date registerTime;
 }

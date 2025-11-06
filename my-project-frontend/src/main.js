@@ -3,6 +3,7 @@ import { createApp } from 'vue'           // 导入Vue创建应用函数
 import App from './App.vue'               // 导入根组件
 import router from  "@/router";           // 导入路由配置
 import axios from 'axios'                 // 导入axios HTTP库
+import 'element-plus/theme-chalk/dark/css-vars.css'    
 
 // 设置axios的默认请求基础URL
 axios.defaults.baseURL='http://localhost:8080'
