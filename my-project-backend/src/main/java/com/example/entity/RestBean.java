@@ -13,7 +13,7 @@ public record RestBean<T>(int code, T data, String message) {
         return success(null);
     }
     public static <T> RestBean<T> failure(int code,String  message){
-        return new RestBean<>(code,null,"请求失败");
+        return new RestBean<>(code,null,message);
     }
 
     public static <T> RestBean<T> unauthorized(String message) {

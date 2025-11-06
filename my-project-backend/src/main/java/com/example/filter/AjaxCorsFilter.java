@@ -24,7 +24,7 @@ public class AjaxCorsFilter extends HttpFilter {
 
     private void addCorsHeaders(HttpServletRequest request,
                                 HttpServletResponse response) {
-        response.addHeader("Access-Control-Allow-Origin", "Origin");
+        response.addHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
         response.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         response.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
     }

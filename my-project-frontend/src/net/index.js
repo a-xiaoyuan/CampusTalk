@@ -82,8 +82,17 @@ function storeAccessToken(token,remember,expire){
  * @param error 错误回调函数
  */
 function internalPost(url,data,header,success,failure,error=defaultError){
+    // 检查内容类型是否为x-www-form-urlencoded
+    let requestData = data;
+    if (header && header['Content-Type'] === 'application/x-www-form-urlencoded') {
+        // 转换数据为URL编码格式
+        requestData = Object.keys(data)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+            .join('&');
+    }
+    
     // 发送POST请求
-    axios.post(url,data,{headers:header}).then(({data})=>{
+    axios.post(url,requestData,{headers:header}).then(({data})=>{
       // 判断响应状态码是否为200（成功）
       if(data.code===200){
           // 执行成功回调函数
@@ -127,11 +136,12 @@ function internalGet(url,header,success,failure,error=defaultError){
  */
 function login(username,password,remember,success,failure=defaultFailure) {
     // 发送登录POST请求
+    // 注意：Spring Security表单登录需要x-www-form-urlencoded格式
     internalPost('api/auth/login',{
         username: username,
         password:password
     },{
-        'Content-Type':'application/x-www-form-urlencoded'  // 设置内容类型
+        'Content-Type':'application/x-www-form-urlencoded'
     },(data)=>{
         // 存储访问令牌
         storeAccessToken(data.token,remember,data.expire)

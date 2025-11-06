@@ -6,7 +6,7 @@ import axios from 'axios'                 // 导入axios HTTP库
 import 'element-plus/theme-chalk/dark/css-vars.css'    
 
 // 设置axios的默认请求基础URL
-axios.defaults.baseURL='http://localhost:8080'
+axios.defaults.baseURL='http://localhost:5371'
 
 // 创建Vue应用实例
 const app=createApp(App)
