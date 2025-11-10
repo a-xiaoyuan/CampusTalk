@@ -6,6 +6,7 @@ import {Lock, User} from "@element-plus/icons-vue";
 import {reactive, ref} from "vue";
 // 导入自定义网络请求方法
 import {login} from "@/net/index.js";
+import router from "@/router/index.js";
 
 // 创建表单引用，用于表单验证
 const formRef=ref()
@@ -38,7 +39,7 @@ function userLogin(){
     // 如果验证通过
     if(valid){
       // 调用登录接口
-      login(form.username,form.password,form.remember,()=>{})
+      login(form.username,form.password,form.remember,()=>router.push('/index'))
     }
   })
 }

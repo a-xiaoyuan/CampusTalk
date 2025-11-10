@@ -71,6 +71,10 @@ function storeAccessToken(token,remember,expire){
     // 从sessionStorage中移除认证信息
     sessionStorage.removeItem(authItemName)
 }
+function accessHeader(){
+     const token=takeAccessToken()
+     return token ? {"Authorization":`Bearer ${token}`} : {}
+}
 
 /**
  * 内部POST请求方法
@@ -125,7 +129,14 @@ function internalGet(url,header,success,failure,error=defaultError){
         }
     }).catch(err=>error(err))  // 捕获并处理错误
 }
-
+function get(url,success,failure=defaultFailure){
+    // 发送GET请求
+    internalGet(url,accessHeader(),success,failure)
+}
+function post(url,data,success,failure=defaultFailure){
+    // 发送POST请求
+    internalPost(url,data,accessHeader(),success,failure)
+}
 /**
  * 用户登录方法
  * @param username 用户名
@@ -151,6 +162,28 @@ function login(username,password,remember,success,failure=defaultFailure) {
         success(data);
     }, failure)
 }
-
+function logout(success, failure = defaultFailure) {
+    // 简化退出登录逻辑：主要处理前端token删除
+    // 由于后端Redis配置缺失，退出登录接口会失败
+    // 这里优先确保前端token被正确删除，用户能够正常退出
+    
+    // 删除访问令牌
+    deleteAccessToken()
+    // 显示注销成功消息
+    ElMessage.success("注销成功")
+    // 执行注销成功回调函数
+    success()
+    
+    // 异步调用后端退出接口（不依赖其结果）
+    // 如果后端Redis配置正常，会成功执行；如果配置缺失，忽略失败
+    post('api/auth/logout', {}, () => {
+        console.log('后端退出登录成功')
+    }, (message) => {
+        console.warn('后端退出登录失败（Redis未配置）:', message)
+    })
+}
+function unauthorized(){
+   return !takeAccessToken()
+}
 // 导出登录方法供外部使用
-export {login}
+export {login,logout,get,post,unauthorized}
