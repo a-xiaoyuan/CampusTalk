@@ -11,7 +11,7 @@
     <div style="flex: 1;background-color: black">
       <!-- 背景图片展示 -->
       <el-image style="width: 100%;height: 100%" fit="cover"
-          src="https://th.bing.com/th/id/OIP.LltGYcnaHVAihJNBIB39egAAAA?w=150&h=108&c=7&bgcl=b3303c&r=0&o=6&dpr=1.5&pid=13.1"/>
+          src="https://i02piccdn.sogoucdn.com/a697cb97322ce62b"/>
     </div>
     
     <!-- 页面标题文字区域 -->
@@ -25,7 +25,11 @@
     <!-- 右侧卡片区域，用于显示子路由内容 -->
     <div class="right-card">
       <!-- 子路由视图出口 -->
-      <router-view/>
+      <router-view v-slot="{Component}">
+        <transition name="el-fade-in-linear">
+          <component :is="Component"/>
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>

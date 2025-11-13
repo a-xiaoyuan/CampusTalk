@@ -17,6 +17,11 @@ const router = createRouter({
                   path:'/',                                 // 子路由路径
                   name:'welcome-login',                     // 子路由名称
                   component:()=>import('@/views/Welcome/LoginPage.vue')  // 子路由组件
+              },
+              {
+                  path:'register',                                 // 子路由路径
+                  name:'welcome-register',                     // 子路由名称
+                  component:()=>import('@/views/Welcome/RegisterPage.vue')  // 子路由组件
               }
           ]
       },{
