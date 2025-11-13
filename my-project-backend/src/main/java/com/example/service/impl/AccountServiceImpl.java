@@ -1,7 +1,9 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.Account;
+import com.example.entity.vo.request.EmailRegisterVO;
 import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
@@ -12,8 +14,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Wrapper;
+import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +36,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     AmqpTemplate amqpTemplate;
     @Resource
     FlowUtils utils;
-
+    @Resource
+    PasswordEncoder encoder;
     /**
      * 根据用户名加载用户信息（Spring Security认证核心方法）
      * 这个方法会被Spring Security自动调用进行用户认证
@@ -57,6 +63,28 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .build();
     }
     @Override
+    public String registerEmailAccount(EmailRegisterVO vo){
+        String email=vo.getEmail();
+        String username=vo.getUsername();
+        String key=Const.VERIFY_EMAIL_DATA+email;
+        String code=stringRedisTemplate.opsForValue().get(key);
+        if(code==null) return "请先获取验证码";
+        if(!code.equals(vo.getCode()))
+            return "验证码错误";
+        if(this.existsAccountByEmail(email))
+            return "邮箱已存在";
+        if(this.existsAccountByUsername(username))
+            return "用户名已存在";
+        String password=encoder.encode(vo.getPassword());
+        Account account=new Account(null,username,password,email,"user",new Date());
+        if(this.save(account)){
+            stringRedisTemplate.delete(key);
+            return null;
+        }else{
+            return "内部错误，请联系管理员";
+        }
+    }
+    @Override
     public String registerEmailVerifyCode(String type,String email,String ip) {
         synchronized (ip.intern()){
             if(!this.verifyLimit(ip))
@@ -79,9 +107,15 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      * 根据用户名查找用户账户信息
      * 使用MyBatis-Plus进行数据库查询
      * 
-     * @param text 用户名
+     * @param
      * @return Account 用户账户对象，如果不存在返回null
      */
+    private boolean existsAccountByEmail(String email) {
+        return this.baseMapper.exists(Wrappers.< Account>query().eq("email", email));
+    }
+    private boolean existsAccountByUsername(String username) {
+        return this.baseMapper.exists(Wrappers.< Account>query().eq("username", username));
+    }
     public Account findAccountByUsername(String text) {
         return this.query()
                 .eq("username", text)  // 查询条件：username字段等于传入的用户名
