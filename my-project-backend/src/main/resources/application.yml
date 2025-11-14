@@ -3,6 +3,18 @@ spring:
     host: smtp.163.com
     username: javajwtli111@163.com
     password: NYpVajuWhn7eZYZm
+    port: 465
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+        debug: true
   rabbitmq:
     addresses: localhost
     username: admin
@@ -21,3 +33,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 server:
   port: 5371
+
+logging:
+  level:
+    com.example: DEBUG
+    org.springframework.mail: DEBUG
+    org.springframework.amqp: DEBUG

@@ -52,7 +52,7 @@ public class SecurityConfiguration {
         return http
                 // 配置URL访问权限
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/api/auth/**","/error").permitAll()  // 认证相关接口允许匿名访问
+                        .requestMatchers("/api/auth/**","/api/test/**","/error").permitAll()  // 认证相关接口和测试接口允许匿名访问
                         .anyRequest().authenticated()  // 其他所有请求需要认证
                 )
                 // 配置表单登录

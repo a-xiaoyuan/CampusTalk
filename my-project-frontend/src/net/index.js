@@ -117,8 +117,8 @@ function internalPost(url,data,header,success,failure,error=defaultError){
  * @param error 错误回调函数
  */
 function internalGet(url,header,success,failure,error=defaultError){
-    // 发送GET请求（注意：此处实际仍使用POST方法，可能是遗留问题）
-    axios.post(url,{headers:header}).then(({data})=>{
+    // 发送GET请求
+    axios.get(url,{headers:header}).then(({data})=>{
         // 判断响应状态码是否为200（成功）
         if(data.code===200){
             // 执行成功回调函数

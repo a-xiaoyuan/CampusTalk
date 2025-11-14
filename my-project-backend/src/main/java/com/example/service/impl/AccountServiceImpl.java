@@ -16,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.sql.Wrapper;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
@@ -107,7 +105,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      * 根据用户名查找用户账户信息
      * 使用MyBatis-Plus进行数据库查询
      * 
-     * @param
+     *
      * @return Account 用户账户对象，如果不存在返回null
      */
     private boolean existsAccountByEmail(String email) {
