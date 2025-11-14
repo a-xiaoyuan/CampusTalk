@@ -91,7 +91,7 @@ function userLogin(){
           
           <!-- 右侧：忘记密码链接 -->
           <el-col :span="12" style="text-align: right">
-            <el-link>忘记密码？</el-link>
+            <el-link @click="router.push('/reset')" >忘记密码？</el-link>
           </el-col>
         </el-row>
       </el-form>
@@ -109,7 +109,7 @@ function userLogin(){
     </el-divider>
     
     <!-- 注册按钮 -->
-    <el-button @click="router.push('/register')" type="primary" style="width: 270px" plain>注册</el-button>
+    <el-button @click="router.push('/register')"  type="primary" style="width: 270px" plain>注册</el-button>
   </div>
 </template>
 
