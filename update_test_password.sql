@@ -1,2 +1,0 @@
-UPDATE test.db_account SET password = '$2a$10$hd9RTLA/0mT.j9jbdOK7Q.VQpXWWcc9/FwIAhiyMYL1TUsWsqc/ve' WHERE username = 'test';
-SELECT id, username, password, LENGTH(password) as pwd_length, role FROM test.db_account WHERE username = 'test';
