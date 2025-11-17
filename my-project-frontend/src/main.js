@@ -1,18 +1,47 @@
-// Vue项目主入口文件
-import { createApp } from 'vue'           // 导入Vue创建应用函数
-import App from './App.vue'               // 导入根组件
-import router from  "@/router";           // 导入路由配置
-import axios from 'axios'                 // 导入axios HTTP库
-import 'element-plus/theme-chalk/dark/css-vars.css'    
+/**
+ * Vue应用主入口文件
+ * 负责初始化Vue应用、配置全局依赖和挂载到DOM
+ * 
+ * @author 系统
+ * @version 1.0
+ * @since 2024
+ */
 
-// 设置axios的默认请求基础URL
-axios.defaults.baseURL='http://localhost:5371'
+// 导入Vue创建应用函数
+import { createApp } from 'vue'
 
-// 创建Vue应用实例
+// 导入根组件
+import App from './App.vue'
+
+// 导入路由配置
+import router from  "@/router";
+
+// 导入axios HTTP库
+import axios from 'axios'
+
+// 导入Element Plus暗黑主题样式
+import 'element-plus/theme-chalk/dark/css-vars.css'
+
+/**
+ * 配置axios默认设置
+ * 设置所有HTTP请求的基础URL，指向后端API服务器
+ */
+axios.defaults.baseURL='http://localhost:5371'  // 后端服务器地址
+
+/**
+ * 创建Vue应用实例
+ * 使用根组件App.vue作为应用的起点
+ */
 const app=createApp(App)
 
-// 使用路由配置
+/**
+ * 注册路由插件
+ * 启用Vue Router进行单页面应用的路由管理
+ */
 app.use(router)
 
-// 挂载应用到id为'app'的DOM元素上
+/**
+ * 挂载应用到DOM
+ * 将Vue应用挂载到HTML中id为'app'的元素上
+ */
 app.mount('#app')
