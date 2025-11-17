@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@RabbitListener(queues = "mail")
 public class MailQueueListener {
 
     @Resource
@@ -21,7 +22,7 @@ public class MailQueueListener {
     @Value("${spring.mail.username}")
     private String username;
 
-    @RabbitListener(queues = "mail")
+    @RabbitHandler
     public void sendMailMessage(Map<String, Object> data) {
         log.info("收到邮件发送请求: {}", data);
         String email = (String) data.get("email");
