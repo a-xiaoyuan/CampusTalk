@@ -59,7 +59,7 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
             
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails( request));  // 设置认证详情
             SecurityContextHolder.getContext().setAuthentication(authentication);  // 设置安全上下文
-            request.setAttribute("id",utils.toId(jwt));  // 在请求中设置用户ID属性
+            request.setAttribute("userId",utils.toId(jwt));  // 在请求中设置用户ID属性
         }
         
         filterChain.doFilter(request,response);  // 继续过滤器链

@@ -70,6 +70,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .roles(account.getRole())  // 设置用户角色
                 .build();
     }
+    @Override
+    public Account findAccountById(int id){
+        return this.query().eq("id",id).one();
+    }
     /**
      * 邮箱注册账户实现
      * 验证邮箱验证码、检查邮箱和用户名是否已存在，创建新用户账户

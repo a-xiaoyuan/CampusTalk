@@ -65,6 +65,9 @@ export default defineConfig({
    * 配置开发环境下的服务器行为
    */
   server: {
+    // 服务器端口配置
+    port: 5173,
+    
     // 代理配置，解决开发环境跨域问题
     proxy: {
       // 将所有以/api开头的请求代理到后端服务器

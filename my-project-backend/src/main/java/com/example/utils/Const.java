@@ -1,47 +1,26 @@
 package com.example.utils;
 
 /**
- * 常量定义类
- * 包含项目中使用的各种常量，如Redis键前缀、过滤器顺序等
- * 
- * @author 系统
- * @version 1.0
- * @since 2024
+ * 一些常量字符串整合
  */
-public class Const {
-    
-    /**
-     * JWT黑名单Redis键前缀
-     */
-    public static final String JWT_BLACK_LIST = "jwt:blacklist:";
-    
-    /**
-     * 邮箱验证码频率限制Redis键前缀
-     */
-    public static final String VERIFY_EMAIL_LIMIT="verify:email:limit:";
-    
-    /**
-     * 邮箱验证码数据Redis键前缀
-     */
-    public static final String VERIFY_EMAIL_DATA="verify:email:data:";
-    
-    /**
-     * CORS过滤器执行顺序
-     */
-    public static final int ORDER_CORS=-102;
-    
-    /**
-     * 限流过滤器执行顺序
-     */
-    public static final int ORDER_LIMIT=-101;
-    
-    /**
-     * 流量限制计数器Redis键前缀
-     */
-    public static final String FLOW_LIMIT_COUNTER="flow:counter:";
-    
-    /**
-     * 流量限制阻塞Redis键前缀
-     */
-    public static final String FLOW_LIMIT_BLOCK="flow:block:";
+public final class Const {
+    //JWT令牌
+    public final static String JWT_BLACK_LIST = "jwt:blacklist:";
+    public final static String JWT_FREQUENCY = "jwt:frequency:";
+    //请求频率限制
+    public final static String FLOW_LIMIT_COUNTER = "flow:counter:";
+    public final static String FLOW_LIMIT_BLOCK = "flow:block:";
+    //邮件验证码
+    public final static String VERIFY_EMAIL_LIMIT = "verify:email:limit:";
+    public final static String VERIFY_EMAIL_DATA = "verify:email:data:";
+    //过滤器优先级
+    public final static int ORDER_LIMIT = -101;
+    public final static int ORDER_CORS = -102;
+    //请求自定义属性
+    public final static String ATTR_USER_ID = "userId";
+    //消息队列
+    public final static String MQ_MAIL = "mail";
+    //用户角色
+    public final static String ROLE_DEFAULT = "user";
+
 }

@@ -3,6 +3,7 @@ package com.example.entity.dto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.example.entity.BaseData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.Date;
 @TableName("db_account")  // MyBatis-Plus注解，指定数据库表名
 @AllArgsConstructor  // 生成全参构造器
 @NoArgsConstructor   // 生成无参构造器
-public class Account {
+public class Account implements BaseData {
     
     /**
      * 用户ID，主键，自增

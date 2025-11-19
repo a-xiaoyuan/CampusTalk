@@ -52,7 +52,8 @@ public class SecurityConfiguration {
         return http
                 // 配置URL访问权限
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/api/auth/**","/api/test/**","/error").permitAll()  // 认证相关接口和测试接口允许匿名访问
+                        .requestMatchers("/api/auth/**","/api/test/**","/error").permitAll()// 认证相关接口和测试接口允许匿名访问
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()  // 其他所有请求需要认证
                 )
                 // 配置表单登录
@@ -148,7 +149,7 @@ public class SecurityConfiguration {
         User user = (User) authentication.getPrincipal();  // 获取认证成功的用户信息
         Account account = service.findAccountByUsername(user.getUsername());
         String token = utils.createJwt(user, account.getId(), account.getUsername());  // 生成JWT token
-        
+
         // 构建返回给前端的响应数据
         AuthorizeVO vo = new AuthorizeVO();
         vo.setUsername(account.getUsername());

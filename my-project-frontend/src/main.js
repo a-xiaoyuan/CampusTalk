@@ -10,6 +10,9 @@
 // 导入Vue创建应用函数
 import { createApp } from 'vue'
 
+// 导入Pinia状态管理
+import { createPinia } from 'pinia'
+
 // 导入根组件
 import App from './App.vue'
 
@@ -34,11 +37,16 @@ axios.defaults.baseURL='http://localhost:5371'  // 后端服务器地址
  */
 const app=createApp(App)
 
+// 创建Pinia实例
+const pinia = createPinia()
+
 /**
- * 注册路由插件
+ * 注册插件
  * 启用Vue Router进行单页面应用的路由管理
+ * 启用Pinia进行状态管理
  */
 app.use(router)
+app.use(pinia)
 
 /**
  * 挂载应用到DOM

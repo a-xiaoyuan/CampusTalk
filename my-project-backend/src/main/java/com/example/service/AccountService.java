@@ -60,4 +60,5 @@ public interface AccountService extends IService<Account>, UserDetailsService {
      * @return 重置结果消息
      */
     String resetEmailAccountPassword(EmailResetVO vo);
+    Account findAccountById(int id);
 }

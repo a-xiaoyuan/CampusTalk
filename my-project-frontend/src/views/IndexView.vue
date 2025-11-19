@@ -12,8 +12,16 @@
  * 导入路由实例和网络请求模块
  */
 import router from "@/router";
-import {logout} from "@/net";
+import {get, logout} from "@/net";
+import {useStore} from "@/store/index.js";
+import {ref} from "vue";
+const store=useStore()
+const loading=ref(true)
+get('api/user/info',(data)=>{
+  store.user=data
+  loading.value=false
 
+})
 /**
  * 用户注销函数
  * 调用后端注销接口，成功后跳转到登录页面
@@ -27,14 +35,14 @@ function userLogout(){
 </script>
 
 <template>
-  <div class="main-content">
-    <el-container style="height: 100%">
+  <div class="main-content" v-loading='loading' element-loading-text="正在进入，请稍后...">
+    <el-container style="height: 100%" v-if="!loading">
       <el-header class="main-content-header">
         <el-image class="logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image>
         <div style="flex:1" class="user-info" >
           <div class="profile">
-            <div>用户名</div>
-            <div>电子邮箱</div>
+            <div>{{store.user.username}}</div>
+            <div>{{store.user.email}}</div>
           </div>
           <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
         </div>

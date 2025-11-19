@@ -130,7 +130,7 @@ public class JwtUtils {
     public UserDetails toUser(DecodedJWT jwt){
         Map<String, Claim> claims = jwt.getClaims();
         return User
-                .withUsername(claims.get("username").asString())  // 用户名
+                .withUsername(claims.get("name").asString())  // 用户名
                 .password("******")  // 密码占位符
                 .authorities(claims.get("authorizes").asArray(String.class))  // 权限
                 .build();
