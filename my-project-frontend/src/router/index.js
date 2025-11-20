@@ -47,7 +47,14 @@ const router = createRouter({
       },{
           path:'/index',              // 路由路径：首页
           name:'index',               // 路由名称：首页
-          component:()=>import('@/views/IndexView.vue')  // 路由组件：首页
+          component:()=>import('@/views/IndexView.vue'),  // 路由组件：首页
+          children:[
+              {
+                  path: 'user-setting',
+                  name: 'user-setting',
+                  component: () => import('@/views/Settings/UserSetting.vue'),
+          }
+          ]
       }
   ]
 });

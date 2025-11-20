@@ -26,6 +26,7 @@ import {
   School,
   Umbrella, User
 } from "@element-plus/icons-vue";
+import {START_LOCATION_NORMALIZED as $route} from "vue-router/dist/devtools-BLCumUwL.mjs";
 const store=useStore()
 const loading=ref(true)
 const searchInput=reactive({
@@ -96,7 +97,10 @@ function userLogout(){
       <el-container>
         <el-aside width="230px">
           <el-scrollbar style="height: calc(100vh - 55px)">
-            <el-menu default-active="1-1" style="min-height: calc(100vh - 55px)">
+            <el-menu
+                router
+                :default-active="$route.path"
+                style="min-height: calc(100vh - 55px)">
               <el-sub-menu index="1">
                 <template #title>
                   <el-icon><Location/></el-icon>
@@ -175,7 +179,7 @@ function userLogout(){
                   <el-icon><Operation/></el-icon>
                   <span><b>个人设置</b></span>
                 </template>
-                <el-menu-item>
+                <el-menu-item index="/index/user-setting">
                   <template #title>
                     <el-icon><User/></el-icon>
                     个人信息设置
@@ -191,7 +195,15 @@ function userLogout(){
             </el-menu>
           </el-scrollbar>
         </el-aside>
-        <el-main>Main</el-main>
+        <el-main  class="main-content-page" >
+          <el-scrollbar style="height: calc(100vh - 55px)">
+            <router-view v-slot ="{ Component }">
+              <transition mode="out-in" name="el-fade-in-linear">
+                <component :is="Component" style="height: 100%"></component>
+              </transition>
+            </router-view>
+          </el-scrollbar>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -202,6 +214,13 @@ function userLogout(){
  * 主页面样式区域
  * 当前页面样式为空，可根据需要添加样式
  */
+.main-content-page{
+  padding: 0;
+  background-color: #f7f8fa;
+}
+.dark .main-content-page{
+  background-color: #212225;
+}
 .main-content{
   width: 100vw;
   height: 100vh;
