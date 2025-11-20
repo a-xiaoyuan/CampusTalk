@@ -14,12 +14,13 @@
 import router from "@/router";
 import {get, logout} from "@/net";
 import {useStore} from "@/store/index.js";
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 import {
+  Back,
   Bell,
   ChatDotSquare, Collection, DataLine,
   Document, Files,
-  Location, Lock, Monitor,
+  Location, Lock, Message, Monitor,
   Notification, Operation,
   Position,
   School,
@@ -27,6 +28,10 @@ import {
 } from "@element-plus/icons-vue";
 const store=useStore()
 const loading=ref(true)
+const searchInput=reactive({
+  type:'',
+  text:''
+})
 get('api/user/info',(data)=>{
   store.user=data
   loading.value=false
@@ -37,10 +42,10 @@ get('api/user/info',(data)=>{
  * 调用后端注销接口，成功后跳转到登录页面
  */
 function userLogout(){
-    // 调用网络请求模块的注销函数
-    logout(()=>
-        // 注销成功回调：跳转到根路径（登录页面）
-        router.push('/'))
+  // 调用网络请求模块的注销函数
+  logout(()=>
+      // 注销成功回调：跳转到根路径（登录页面）
+      router.push('/'))
 }
 </script>
 
@@ -49,17 +54,48 @@ function userLogout(){
     <el-container style="height: 100%" v-if="!loading">
       <el-header class="main-content-header">
         <el-image class="logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image>
-        <div style="flex:1" class="user-info" >
+        <div style="flex:1;padding:0 20px;text-align: center">
+          <el-input v-model="searchInput.text" placeholder="搜索论坛相关内容" style="width: 100%;max-width: 500px">
+            <template #prefix>
+              <el-icon><Search/></el-icon>
+            </template>
+            <template #append>
+              <el-select v-model="searchInput.type" style="width: 120px">
+                <el-option label="帖子广场" value="1"></el-option>
+                <el-option label="失物招领" value="2"></el-option>
+                <el-option label="校园活动" value="3"></el-option>
+                <el-option label="表白墙" value="4"></el-option>
+              </el-select>
+            </template>
+          </el-input>
+        </div>
+        <div  class="user-info" >
           <div class="profile">
             <div>{{store.user.username}}</div>
             <div>{{store.user.email}}</div>
           </div>
+          <el-dropdown>
           <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+          <template #dropdown>
+            <el-dropdown-item>
+              <el-icon><Operation/></el-icon>
+              个人设置
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <el-icon><Message/></el-icon>
+              消息列表
+            </el-dropdown-item>
+            <el-dropdown-item  @click="userLogout" divided>
+              <el-icon><Back/></el-icon>
+              退出登录
+            </el-dropdown-item>
+          </template>
+          </el-dropdown>
         </div>
       </el-header>
       <el-container>
-          <el-aside width="230px">
-            <el-scrollbar style="height: calc(100vh - 55px)">
+        <el-aside width="230px">
+          <el-scrollbar style="height: calc(100vh - 55px)">
             <el-menu default-active="1-1" style="min-height: calc(100vh - 55px)">
               <el-sub-menu index="1">
                 <template #title>
@@ -153,9 +189,9 @@ function userLogout(){
                 </el-menu-item>
               </el-sub-menu>
             </el-menu>
-            </el-scrollbar>
-          </el-aside>
-          <el-main>Main</el-main>
+          </el-scrollbar>
+        </el-aside>
+        <el-main>Main</el-main>
       </el-container>
     </el-container>
   </div>
@@ -167,23 +203,26 @@ function userLogout(){
  * 当前页面样式为空，可根据需要添加样式
  */
 .main-content{
-    width: 100vw;
-    height: 100vh;
+  width: 100vw;
+  height: 100vh;
 }
 .main-content-header{
-    border-bottom: solid 1px var(--el-border-color);
-    height: 55px;
+  border-bottom: solid 1px var(--el-border-color);
+  height: 55px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  .logo{
+    height: 32px;
+  }
+  .user-info{
     display: flex;
     align-items: center;
-    box-sizing: border-box;
+    justify-content: flex-end;
 
-    .logo{
-      height: 32px;
-    }
-    .user-info{
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
+    .el-avatar:hover{
+      cursor: pointer;
     }
     .profile {
       text-align: right;
@@ -198,6 +237,8 @@ function userLogout(){
       font-size: 10px;
       color: gray;
     }
+  }
+
 
 }
 </style>
