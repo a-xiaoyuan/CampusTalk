@@ -71,7 +71,7 @@ function storeAccessToken(token,remember,expire){
     // 从sessionStorage中移除认证信息
     sessionStorage.removeItem(authItemName)
 }
-function accessHeader(){
+export function accessHeader(){
      const token=takeAccessToken()
      return token ? {"Authorization":`Bearer ${token}`} : {}
 }
