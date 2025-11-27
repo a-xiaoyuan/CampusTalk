@@ -3,7 +3,7 @@ package com.example.controller;
 import com.example.entity.RestBean;
 import com.example.entity.dto.Account;
 import com.example.entity.dto.AccountDetails;
-import com.example.entity.vo.request.DetailsServiceVO;
+import com.example.entity.vo.request.DetailsSaveVO;
 import com.example.entity.vo.response.AccountDetailsVO;
 import com.example.entity.vo.response.AccountVO;
 import com.example.service.AccountDetailsService;
@@ -36,7 +36,7 @@ public class AccountController {
     }
     @PostMapping("/save-details")
     public RestBean<Void> saveDetails(@RequestAttribute(Const.ATTR_USER_ID)int id,
-                                      @RequestBody @Valid DetailsServiceVO vo){
+                                      @RequestBody @Valid DetailsSaveVO vo){
         boolean success = detailsService.saveAccountDetails(id,vo);
         return success ? RestBean.success() : RestBean.failure(400,"此用户名已被其他用户使用，请更换");
     }
