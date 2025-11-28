@@ -47,9 +47,6 @@ const rules = {
       {required:true,message:'请输入邮箱',trigger:'blur'},
       {type:'email',message:'请输入正确的邮箱地址',trigger:['blur','change']}
     ],
-    code:[
-      {required:true,message:'请输入验证码',trigger:'blur'}
-    ],
     desc:[
       {required:true,message:'请输入个人简介',trigger:'blur'},
       {min: 10, max: 200, message: '个人简介长度在 10 到 200 个字符',trigger: ['blur', 'change']}
@@ -79,19 +76,54 @@ get('/api/user/details',data=>{
   baseFrom.wx = data.wx
   baseFrom.desc =desc.value= data.desc
   loading.base = false
+  emailFrom.email = store.user.email
   loading.form = false
 },(message)=>{
   ElMessage.error('获取用户信息失败: ' + message)
   loading.base = false
   loading.form = false
 })
+const coldTime = ref()
+const isEmailValid = ref(true)
+const onValidate = (prop, isValid) => {
+  if (prop === 'email')
+    isEmailValid.value = isValid
+}
+function sendEmailCode(){
+  emailFromRef.value.validate(isValid =>{
+    coldTime.value = 60
+    get(`/api/auth/ask-code?email=${emailFrom.email}&type=modify`,()=>{
+      ElMessage.success(`验证码已成功发送到邮箱${emailFrom.email},请注意查收`)
+      const handle = setInterval(()=>{
+        coldTime.value--
+        if(coldTime.value === 0){
+          clearInterval(handle)
+        }
+      },1000)
+  },(message)=>{
+      ElMessage.error('获取验证码失败: ' + message)
+      coldTime.value = 0
+    })
+  })
+}
+function modifyEmail(){  
+  emailFromRef.value.validate(isValid =>{
+    post('/api/user/modify-email',emailFrom,()=>{
+      ElMessage.success('修改邮箱成功')
+      store.user.email = emailFrom.email
+      emailFrom.code = ''
+    },(message)=>{
+      ElMessage.error('修改邮箱失败: ' + message)
+    })
+  })
+}
 </script>
 
 <template>
   <div style="display: flex">
     <div class="settings-left">
       <card :icon="User" title="账号信息设置" desc="在这里设置您的个人信息，您可以在隐私设置中展示您的个人信息" v-loading="loading.form">
-        <el-form :model="baseFrom" :rules="rules" ref="baseFrom" label-position="top" style="margin: 0 10px 10px 10px">
+        <el-form :model="baseFrom" :rules="rules" ref="baseFromRef" label-position="top" style="margin: 0 10px 10px 10px">
           <el-form-item label="用户名" prop="username">
             <el-input v-model="baseFrom.username" maxlength="10"/>
           </el-form-item>
@@ -122,7 +154,7 @@ get('/api/user/details',data=>{
         </el-form>
       </card>
       <card style="margin-top: 10px" :icon="Message" title="电子邮件设置" desc="您可以在这里修改默认绑定的电子邮件">
-        <el-form :model="emailFrom" :rules="rules" ref="emailFrom" label-position="top" style="margin: 0 10px 10px 10px">
+        <el-form :model="emailFrom" @validate="onValidate" :rules="rules" ref="emailFromRef" label-position="top" style="margin: 0 10px 10px 10px">
           <el-form-item label="邮箱" prop="email">
             <el-input v-model="emailFrom.email"/>
           </el-form-item>
@@ -132,14 +164,15 @@ get('/api/user/details',data=>{
                 <el-input placeholder="请输入验证码" v-model="emailFrom.code"/>
               </el-col>
               <el-col :span="6">
-                <el-button type="primary"  style="width: 100px" plain>获取验证码</el-button>
+                <el-button type="primary" :disabled="!isEmailValid || coldTime > 0"
+                           @click="sendEmailCode" style="width: 100px" plain>{{ coldTime > 0 ? `请稍等 ${coldTime} 秒` : '发送验证码'}}</el-button>
               </el-col>
             </el-row>
           </el-form-item>
           <div>
-            <el-button type="primary" plain>
+            <el-button type="primary" @click="modifyEmail" plain>
               <el-icon><Refresh /></el-icon>
-              保存
+              更新电子邮件
             </el-button>
           </div>
 

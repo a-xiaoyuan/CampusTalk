@@ -2,6 +2,7 @@ package com.example.listener;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,6 +72,18 @@ public class MailQueueListener {
                     "- 如非本人操作，请立即联系客服\n\n" +
                     "此邮件由系统自动发送，请勿回复。\n\n" +
                     "系统管理员", email);
+            case "modify" -> createMessage("【系统通知】修改邮件验证码",
+                    "尊敬的用户：\n\n" +
+                    "您好！\n\n" +
+                    "您正在进行修改邮件操作。\n\n" +
+                    "您的邮箱验证码为：" + code + "\n\n" +
+                    "有效时间：3分钟\n\n" +
+                    "温馨提示：\n" +
+                    "- 请勿将验证码泄露给他人\n" +
+                    "- 如非本人操作，请立即联系客服\n\n" +
+                    "此邮件由系统自动发送，请勿回复。\n\n" +
+                    "系统管理员", email
+            );
             default -> {
                 log.warn("未知的邮件类型: {}", type);
                 yield null;  // 未知类型返回null
@@ -89,6 +102,15 @@ public class MailQueueListener {
         } catch (Exception e) {
             log.error("邮件发送失败到: {}, 错误: {}", email, e.getMessage(), e);
         }
+    }
+
+    /**
+     * 处理字节数组格式的消息（兼容性处理）
+     * @param bytes 字节数组消息体
+     */
+    @RabbitHandler
+    public void handleByteArrayMessage(byte[] bytes) {
+        log.warn("接收到未处理的字节数组消息，长度: {}", bytes != null ? bytes.length : 0);
     }
 
     /**

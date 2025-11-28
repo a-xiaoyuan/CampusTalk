@@ -6,6 +6,7 @@ import com.example.entity.dto.Account;
 import com.example.entity.vo.request.ConfirmResetVO;
 import com.example.entity.vo.request.EmailRegisterVO;
 import com.example.entity.vo.request.EmailResetVO;
+import com.example.entity.vo.request.ModifyEmailVO;
 import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
@@ -74,6 +75,48 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public Account findAccountById(int id){
         return this.query().eq("id",id).one();
     }
+
+    @Override
+    public String modifyEmail(int id, ModifyEmailVO vo) {
+        String email = vo.getEmail();
+        String code = getEmailVerifyCode(email);
+        if(code==null) return "请先获取验证码";
+        if(!code.equals(vo.getCode())) return "验证码错误";
+        this.deleteEmailVerifyCode(email);
+        Account account=this.findAccountByNameOrEmail(email);
+        if(account != null && account.getId() != id)
+            return "电子邮件已存在";
+        this.update()
+                .set("email",email)
+                .eq("id",id)
+                .update();
+        return null;
+    }
+    /**
+     * 通过用户名或邮件地址查找用户
+     * @param text 用户名或邮件
+     * @return 账户实体
+     */
+    public Account findAccountByNameOrEmail(String text){
+        return this.query()
+                .eq("username", text).or()
+                .eq("email", text)
+                .one();
+    }
+    private void deleteEmailVerifyCode(String email){
+        String key = Const.VERIFY_EMAIL_DATA + email;
+        stringRedisTemplate.delete(key);
+    }
+    /**
+     * 获取Redis中存储的邮件验证码
+     * @param email 电邮
+     * @return 验证码
+     */
+    private String getEmailVerifyCode(String email){
+        String key = Const.VERIFY_EMAIL_DATA + email;
+        return stringRedisTemplate.opsForValue().get(key);
+    }
+
     /**
      * 邮箱注册账户实现
      * 验证邮箱验证码、检查邮箱和用户名是否已存在，创建新用户账户
@@ -231,7 +274,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .eq("username", text)  // 查询条件：username字段等于传入的用户名
                 .one();  // 返回单个结果
     }
-    
+
     /**
      * 验证请求频率限制
      * 防止同一IP频繁请求验证码
