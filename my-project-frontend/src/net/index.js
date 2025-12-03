@@ -33,7 +33,7 @@ function takeAccessToken(){
     // 解析存储的认证对象
     const authObj=JSON.parse(str)
     // 判断认证信息是否过期
-    if(authObj.expire<=new Date()){
+    if(new Date(authObj.expire)<=new Date()){
         // 如果过期则删除认证信息
         deleteAccessToken()
         // 显示过期提醒

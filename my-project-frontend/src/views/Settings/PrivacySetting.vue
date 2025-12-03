@@ -2,6 +2,51 @@
 
 import Card from "@/components/Card.vue";
 import {Lock, Setting, Switch} from "@element-plus/icons-vue";
+import {reactive, ref} from "vue";
+import {post} from "@/net/index.js";
+import {ElMessage} from "element-plus";
+const form=reactive( {
+  password: '',
+  new_password: '',
+  new_password_repeat: ''
+})
+const validatePassword = (rule, value, callback) => {
+  if(value===''){
+    callback(new Error('请再次输入密码'))}
+  else if(value!==form.new_password){
+    callback(new Error('两次输入的密码不一致'))}
+  else{
+    callback()}
+}
+const rules = {
+  password: [
+    { required: true, message: '请输入旧密码', trigger: 'blur' },
+    { min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur' }
+  ],
+  new_password: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur' }
+  ],
+  new_password_repeat: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { validator: validatePassword, trigger: ['blur', 'change']}
+  ]
+}
+const formRef=ref()
+const valid=ref(false)
+const OnValidate=(prop,isValid)=>{
+  valid.value=isValid
+}
+function resetPassword(){
+  formRef.value.validate(valid=>{
+    if(valid){
+      post('api/user/change-password',form,()=>{
+        ElMessage.success('修改密码成功')
+        formRef.value.resetFields()
+      })
+    }
+  })
+}
 </script>
 
 <template>
@@ -18,18 +63,18 @@ import {Lock, Setting, Switch} from "@element-plus/icons-vue";
       </card>
       <card style="margin: 20px 0" :icon="Setting" tile="修改密码"
       desc="在这里修改你的密码，请务必牢记密码">
-        <el-form label-width="100" style="margin: 20px">
-          <el-form-item label="旧密码">
-            <el-input :prefix-icon="Lock" placeholder="请输入旧密码" maxlength="16"></el-input>
+        <el-form :rules="rules" :model="form" ref="formRef" @validate="OnValidate" label-width="100" style="margin: 20px">
+          <el-form-item label="旧密码" prop="password">
+            <el-input type="password" :prefix-icon="Lock" v-model="form.password" placeholder="请输入旧密码" maxlength="16"></el-input>
           </el-form-item>
-          <el-form-item label="新密码">
-            <el-input :prefix-icon="Lock" placeholder="请输入旧密码" maxlength="16"></el-input>
+          <el-form-item label="新密码" prop="new_password">
+            <el-input type="password" :prefix-icon="Lock" v-model="form.new_password" placeholder="请输入新密码" maxlength="16"></el-input>
           </el-form-item>
-          <el-form-item label="确认新密码">
-            <el-input :prefix-icon="Lock" placeholder="请输入旧密码" maxlength="16"></el-input>
+          <el-form-item label="确认新密码" prop="new_password_repeat">
+            <el-input type="password" :prefix-icon="Lock" v-model="form.new_password_repeat" placeholder="确认你的密码" maxlength="16"></el-input>
           </el-form-item>
           <div style="text-align: center">
-            <el-button :icon="Switch" type="primary">修改密码</el-button>
+            <el-button @click="resetPassword" :icon="Switch" type="primary">修改密码</el-button>
           </div>
         </el-form>
       </card>

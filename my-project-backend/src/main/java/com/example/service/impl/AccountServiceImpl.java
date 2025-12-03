@@ -3,10 +3,7 @@ package com.example.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.Account;
-import com.example.entity.vo.request.ConfirmResetVO;
-import com.example.entity.vo.request.EmailRegisterVO;
-import com.example.entity.vo.request.EmailResetVO;
-import com.example.entity.vo.request.ModifyEmailVO;
+import com.example.entity.vo.request.*;
 import com.example.mapper.AccountMapper;
 import com.example.service.AccountService;
 import com.example.utils.Const;
@@ -46,7 +43,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     FlowUtils utils;  // 流量控制工具类
     
     @Resource
-    PasswordEncoder encoder;  // 密码编码器，用于密码加密
+    PasswordEncoder passwordEncoder;  // 密码编码器，用于密码加密
     /**
      * 根据用户名加载用户信息（Spring Security认证核心方法）
      * 这个方法会被Spring Security自动调用进行用户认证
@@ -92,6 +89,19 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .update();
         return null;
     }
+
+    @Override
+    public String changePassword(int id, ChangePasswordVO vo) {
+        String password = this.query().eq("id",id).one().getPassword();
+        if(!passwordEncoder.matches(vo.getPassword(),password))
+            return "密码错误";
+        boolean success=this.update()
+                .eq("id",id)
+                .set("password",passwordEncoder.encode(vo.getNew_password()))
+                .update();
+        return success?null:"修改密码失败";
+    }
+
     /**
      * 通过用户名或邮件地址查找用户
      * @param text 用户名或邮件
@@ -147,7 +157,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             return "用户名已存在";
             
         // 加密密码并创建账户
-        String password=encoder.encode(vo.getPassword());
+        String password=passwordEncoder.encode(vo.getPassword());
         Account account=new Account(null,username,password,email,"user",new Date());
         
         // 保存账户到数据库
@@ -174,7 +184,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(verify!=null) return verify;
         
         // 加密新密码并更新数据库
-        String password=encoder.encode(vo.getPassword());
+        String password=passwordEncoder.encode(vo.getPassword());
         boolean update=this.update().eq("email", email).set("password",password).update();
         
         // 更新成功后删除验证码缓存
