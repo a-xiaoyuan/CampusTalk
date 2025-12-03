@@ -91,30 +91,34 @@ const onValidate = (prop, isValid) => {
 }
 function sendEmailCode(){
   emailFromRef.value.validate(isValid =>{
-    coldTime.value = 60
-    get(`/api/auth/ask-code?email=${emailFrom.email}&type=modify`,()=>{
-      ElMessage.success(`验证码已成功发送到邮箱${emailFrom.email},请注意查收`)
-      const handle = setInterval(()=>{
-        coldTime.value--
-        if(coldTime.value === 0){
-          clearInterval(handle)
-        }
-      },1000)
-  },(message)=>{
-      ElMessage.error('获取验证码失败: ' + message)
-      coldTime.value = 0
-    })
+    if(isValid){
+      coldTime.value = 60
+      get(`/api/auth/ask-code?email=${emailFrom.email}&type=modify`,()=>{
+        ElMessage.success(`验证码已成功发送到邮箱${emailFrom.email},请注意查收`)
+        const handle = setInterval(()=>{
+          coldTime.value--
+          if(coldTime.value === 0){
+            clearInterval(handle)
+          }
+        },1000)
+      },(message)=>{
+        ElMessage.error('获取验证码失败: ' + message)
+        coldTime.value = 0
+      })
+    }
   })
 }
 function modifyEmail(){  
   emailFromRef.value.validate(isValid =>{
-    post('/api/user/modify-email',emailFrom,()=>{
-      ElMessage.success('修改邮箱成功')
-      store.user.email = emailFrom.email
-      emailFrom.code = ''
-    },(message)=>{
-      ElMessage.error('修改邮箱失败: ' + message)
-    })
+    if(isValid){
+      post('/api/user/modify-email',emailFrom,()=>{
+        ElMessage.success('修改邮箱成功')
+        store.user.email = emailFrom.email
+        emailFrom.code = ''
+      },(message)=>{
+        ElMessage.error('修改邮箱失败: ' + message)
+      })    }
+
   })
 }
 </script>
