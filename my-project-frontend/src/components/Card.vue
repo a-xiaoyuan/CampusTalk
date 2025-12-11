@@ -2,19 +2,21 @@
 defineProps({
   icon: Object,
   title: String,
-  desc:String
+  desc: String
 })
 </script>
 
 <template>
   <div class="card">
     <div class="card-header" v-if="title">
-      <el-icon style="margin-right: 3px ;translate: 0 2px">
-        <component :is="icon"></component>
-      </el-icon>
-      {{title}}
+      <div>
+        <el-icon style="margin-right: 3px;translate: 0 2px">
+          <component :is="icon"/>
+        </el-icon>
+        {{title}}
+      </div>
+      <div>{{ desc }}</div>
     </div>
-    <div>{{desc}}</div>
     <slot/>
   </div>
 </template>
@@ -40,14 +42,8 @@ defineProps({
   }
 
   &>:last-child {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 13px;
+    color: grey;
   }
 }
-
-.card > div:nth-child(2) {
-  font-size: 13px;
-  color: grey;
-}
-
 </style>

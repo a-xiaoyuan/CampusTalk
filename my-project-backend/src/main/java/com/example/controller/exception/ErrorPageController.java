@@ -64,4 +64,3 @@ public class ErrorPageController extends AbstractErrorController {
                         ErrorAttributeOptions.Include.EXCEPTION);
     }
 }
-
