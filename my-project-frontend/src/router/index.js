@@ -31,17 +31,22 @@ const router = createRouter({
               {
                   path:'/',                                 // 子路由路径：默认子路由
                   name:'welcome-login',                     // 子路由名称：登录页面
-                  component:()=>import('@/views/Welcome/LoginPage.vue')  // 子路由组件：登录页面
+                  component:()=>import('@/views/welcome/LoginPage.vue')  // 子路由组件：登录页面
               },
               {
                   path:'register',                                 // 子路由路径：注册页面
                   name:'welcome-register',                     // 子路由名称：注册页面
-                  component:()=>import('@/views/Welcome/RegisterPage.vue')  // 子路由组件：注册页面
+                  component:()=>import('@/views/welcome/RegisterPage.vue')  // 子路由组件：注册页面
               },
               {
                   path:'reset',                                 // 子路由路径：重置密码页面
                   name:'welcome-reset',                     // 子路由名称：重置密码页面
-                  component:()=>import('@/views/Welcome/ResetPage.vue')  // 子路由组件：重置密码页面
+                  component:()=>import('@/views/welcome/ResetPage.vue')  // 子路由组件：重置密码页面
+              },
+              {
+                  path:'forget',                                 // 子路由路径：忘记密码页面
+                  name:'welcome-forget',                     // 子路由名称：忘记密码页面
+                  component:()=>import('@/views/welcome/ForgetPage.vue')  // 子路由组件：忘记密码页面
               }
           ]
       },{
@@ -52,12 +57,12 @@ const router = createRouter({
               {
                   path: 'user-setting',
                   name: 'user-setting',
-                  component: () => import('@/views/Settings/UserSetting.vue'),
+                  component: () => import('@/views/settings/UserSetting.vue'),
           },
               {
                   path: 'privacy-setting',
                   name: 'privacy-setting',
-                  component: () => import('@/views/Settings/PrivacySetting.vue'),
+                  component: () => import('@/views/settings/PrivacySetting.vue'),
               }
           ]
       }
