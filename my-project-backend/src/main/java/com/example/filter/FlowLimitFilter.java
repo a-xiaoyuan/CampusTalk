@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2024
  */
 @Component  // Spring组件注解
-@Order(Const.ORDER_LIMIT)  // 过滤器执行顺序
+@Order(Const.ORDER_FLOW_LIMIT)  // 过滤器执行顺序
 public class FlowLimitFilter extends HttpFilter {
     
     /**

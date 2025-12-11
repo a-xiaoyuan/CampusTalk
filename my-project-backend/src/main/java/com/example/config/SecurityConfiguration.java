@@ -3,8 +3,10 @@ package com.example.config;
 import com.example.entity.RestBean;
 import com.example.entity.dto.Account;
 import com.example.entity.vo.response.AuthorizeVO;
-import com.example.filter.JwtAuthorizeFilter;
+import com.example.filter.JwtAuthenticationFilter;
+import com.example.filter.RequestLogFilter;
 import com.example.service.AccountService;
+import com.example.utils.Const;
 import com.example.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,17 +14,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -30,100 +26,106 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * Spring Security 安全配置类
- * 负责配置应用程序的安全策略、认证和授权规则
+ * SpringSecurity相关配置
  */
 @Configuration
-@EnableWebSecurity
 public class SecurityConfiguration {
+
     @Resource
-    JwtUtils utils;  // JWT工具类，用于生成和验证token
+    JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Resource
-    JwtAuthorizeFilter jwtAuthorizeFilter;  // JWT认证过滤器
+    RequestLogFilter requestLogFilter;
+
     @Resource
-    AccountService service;  // 用户服务，用于用户认证
+    JwtUtils utils;
+
+    @Resource
+    AccountService service;
 
     /**
-     * 配置安全过滤器链
-     * 定义URL访问规则、登录/登出配置、异常处理等
+     * 针对于 SpringSecurity 6 的新版配置方法
+     * @param http 配置器
+     * @return 自动构建的内置过滤器链
+     * @throws Exception 可能的异常
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                // 配置URL访问权限
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/api/auth/**","/api/test/**","/error").permitAll()// 认证相关接口和测试接口允许匿名访问
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()  // 其他所有请求需要认证
+                        .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole(Const.ROLE_ADMIN)
+                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT, Const.ROLE_ADMIN)
                 )
-                // 配置表单登录
                 .formLogin(conf -> conf
-                        .loginProcessingUrl("/api/auth/login")  // 登录处理URL
-                        .usernameParameter("username")  // 用户名参数名
-                        .passwordParameter("password")  // 密码参数名
-                        .failureHandler(this::onAuthenticationFailure)  // 登录失败处理器
-                        .successHandler(this::onAuthenticationSuccess)  // 登录成功处理器
+                        .loginProcessingUrl("/api/auth/login")
+                        .failureHandler(this::handleProcess)
+                        .successHandler(this::handleProcess)
+                        .permitAll()
                 )
-                // 配置登出
                 .logout(conf -> conf
-                        .logoutUrl("/api/auth/logout")  // 登出URL
-                        .logoutSuccessHandler(this::onLogoutSuccess)  // 登出成功处理器
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler(this::onLogoutSuccess)
                 )
-                // 配置异常处理
                 .exceptionHandling(conf -> conf
-                        .authenticationEntryPoint(this::onUnauthorized)  // 未认证处理
-                        .accessDeniedHandler(this::onAccessDeny)  // 权限不足处理
+                        .accessDeniedHandler(this::handleProcess)
+                        .authenticationEntryPoint(this::handleProcess)
                 )
-                .csrf(AbstractHttpConfigurer::disable)  // 禁用CSRF保护（因为使用JWT）
-                // 配置会话管理为无状态（使用JWT）
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(conf -> conf
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 添加JWT过滤器在用户名密码认证过滤器之前
-                .addFilterBefore(jwtAuthorizeFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(requestLogFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, RequestLogFilter.class)
                 .build();
     }
 
     /**
-     * 配置认证管理器
-     * Spring Security会自动使用AccountService作为UserDetailsService
+     * 将多种类型的Handler整合到同一个方法中，包含：
+     * - 登录成功
+     * - 登录失败
+     * - 未登录拦截/无权限拦截
+     * @param request 请求
+     * @param response 响应
+     * @param exceptionOrAuthentication 异常或是验证实体
+     * @throws IOException 可能的异常
      */
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    /**
-     * 配置密码编码器
-     * 使用BCrypt算法对密码进行加密和验证
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    /**
-     * 权限不足时的处理（403错误）
-     */
-    private void onAccessDeny(HttpServletRequest request,
-                              HttpServletResponse response,
-                              AccessDeniedException e) throws IOException {
+    private void handleProcess(HttpServletRequest request,
+                               HttpServletResponse response,
+                               Object exceptionOrAuthentication) throws IOException {
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(RestBean.forbidden(e.getMessage()).asJsonString());
+        PrintWriter writer = response.getWriter();
+        if(exceptionOrAuthentication instanceof AccessDeniedException exception) {
+            writer.write(RestBean
+                    .forbidden(exception.getMessage()).asJsonString());
+        } else if(exceptionOrAuthentication instanceof Exception exception) {
+            writer.write(RestBean
+                    .unauthorized(exception.getMessage()).asJsonString());
+        } else if(exceptionOrAuthentication instanceof Authentication authentication){
+            User user = (User) authentication.getPrincipal();
+            Account account = service.findAccountByNameOrEmail(user.getUsername());
+            if(account.isBanned()) {
+                writer.write(RestBean.forbidden("登录失败，此账户已被封禁").asJsonString());
+                return;
+            }
+            String jwt = utils.createJwt(user, account.getUsername(), account.getId());
+            if(jwt == null) {
+                writer.write(RestBean.forbidden("登录验证频繁，请稍后再试").asJsonString());
+            } else {
+                AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, o -> o.setToken(jwt));
+                vo.setExpire(utils.expireTime());
+                writer.write(RestBean.success(vo).asJsonString());
+            }
+        }
     }
 
     /**
-     * 未认证时的处理（401错误）
-     */
-    private void onUnauthorized(HttpServletRequest request,
-                                HttpServletResponse response,
-                                AuthenticationException exception) throws IOException {
-        response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(RestBean.unauthorized(exception.getMessage()).asJsonString());
-    }
-
-    /**
-     * 登出成功处理
-     * 使JWT token失效
+     * 退出登录处理，将对应的Jwt令牌列入黑名单不再使用
+     * @param request 请求
+     * @param response 响应
+     * @param authentication 验证实体
+     * @throws IOException 可能的异常
      */
     private void onLogoutSuccess(HttpServletRequest request,
                                  HttpServletResponse response,
@@ -131,42 +133,10 @@ public class SecurityConfiguration {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
         String authorization = request.getHeader("Authorization");
-        if (utils.invalidateJwt(authorization)) {
-            writer.write(RestBean.success().asJsonString());
-        } else {
-            writer.write(RestBean.failure(400, "退出登录失败").asJsonString());
+        if(utils.invalidateJwt(authorization)) {
+            writer.write(RestBean.success("退出登录成功").asJsonString());
+            return;
         }
-    }
-
-    /**
-     * 登录成功处理
-     * 生成JWT token并返回用户信息
-     */
-    private void onAuthenticationSuccess(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         Authentication authentication) throws IOException {
-        response.setContentType("application/json;charset=utf-8");
-        User user = (User) authentication.getPrincipal();  // 获取认证成功的用户信息
-        Account account = service.findAccountByUsername(user.getUsername());
-        String token = utils.createJwt(user, account.getId(), account.getUsername());  // 生成JWT token
-
-        // 构建返回给前端的响应数据
-        AuthorizeVO vo = new AuthorizeVO();
-        vo.setUsername(account.getUsername());
-        vo.setRole(account.getRole());
-        vo.setToken(token);
-        vo.setExpire(utils.expireTime());
-        response.getWriter().write(RestBean.success(vo).asJsonString());
-    }
-
-    /**
-     * 登录失败处理
-     * 返回401状态码和错误信息
-     */
-    private void onAuthenticationFailure(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         AuthenticationException exception) throws IOException {
-        response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(RestBean.failure(401, exception.getMessage()).asJsonString());
+        writer.write(RestBean.failure(400, "退出登录失败").asJsonString());
     }
 }

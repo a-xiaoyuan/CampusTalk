@@ -47,12 +47,12 @@ public class SwaggerConfiguration {
                         .version("1.0")
                         .license(new License()
                                 .name("项目开源地址")
-                                .url("https://github.com/a-xiaoyuan/CampusTalk.git")
+                                .url("https://github.com/Ketuer/SpringBoot-Vue-Template-Jwt")
                         )
                 )
                 .externalDocs(new ExternalDocumentation()
                         .description("我们的官方网站")
-                        .url("")
+                        .url("https://itbaima.net")
                 );
     }
 

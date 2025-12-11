@@ -1,54 +1,24 @@
-<!-- 
-  Vue应用入口HTML文件
-  应用的主HTML模板，包含基础配置和资源引入
-  
-  @author 系统
-  @version 1.0
-  @since 2024
--->
-
 <!DOCTYPE html>
-<!-- HTML文档根元素，设置语言属性 -->
-<html lang="">
-  
-  <!-- 文档头部区域 -->
+<html lang="en">
   <head>
-    <!-- 字符编码设置，使用UTF-8支持中文 -->
     <meta charset="UTF-8">
-    
-    <!-- 网站图标设置 -->
     <link rel="icon" href="/favicon.ico">
-    
-    <!-- 视口配置，支持响应式设计 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- 引入Element Plus样式库 -->
-    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css"/>
-    
-    <!-- 页面标题 -->
+    <link rel="stylesheet" href="//lib.baomitu.com/element-plus/2.2.32/index.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/qweather-icons@1.5.0/font/qweather-icons.css" rel="stylesheet">
     <title>Vite App</title>
-    
-    <!-- 内联样式 -->
     <style>
-        /* 重置body元素的默认边距 */
-        body{
+        body {
             margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI",
+            Roboto, "Helvetica Neue", Arial, "Noto Sans",
+            "Liberation Sans", sans-serif, "Apple Color Emoji",
+            "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
         }
     </style>
   </head>
-  
-  <!-- 文档主体区域 -->
   <body>
-    <!-- 
-      Vue应用挂载点
-      应用的所有内容将渲染到这个div元素中
-    -->
     <div id="app"></div>
-    
-    <!-- 
-      模块化JavaScript入口文件
-      使用ES6模块系统加载Vue应用主入口文件
-    -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
